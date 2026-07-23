@@ -10,5 +10,16 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Employee> Employees { get; set; }
+    public DbSet<Employee> Employees { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.User)
+            .WithOne(u => u.Employee)
+            .HasForeignKey<User>(u => u.EmployeeId);
+    }
 }

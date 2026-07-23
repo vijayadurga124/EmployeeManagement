@@ -31,4 +31,5 @@ public class Employee
     public DateTime DateOfJoining { get; set; }
 
     public bool IsActive { get; set; } = true;
+    public User? User { get; set; }
 }

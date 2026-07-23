@@ -6,7 +6,10 @@ interface EmployeeTableProps {
     onDelete?: (id: number) => void;
 }
 
+import { useAuth } from "../../context/useAuth";
+
 function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProps) {
+    const { role } = useAuth();
 
     return (
         <table className="table-auto border-collapse border border-gray-300 w-full">
@@ -20,7 +23,7 @@ function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProps) {
                     <th className="border p-3">Last Name</th>
                     <th className="border p-3">Email</th>
                     <th className="border p-3">Department</th>
-                    <th className="border p-3">Actions</th>
+                    {role === 'Admin' && <th className="border p-3">Actions</th>}
 
                 </tr>
 
@@ -49,22 +52,22 @@ function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProps) {
                         <td className="border p-3">{employee.lastName}</td>
                         <td className="border p-3">{employee.email}</td>
                         <td className="border p-3">{employee.department}</td>
-                        <td className="border p-3">
-                        <button
-                            onClick={() => onEdit(employee)}
-                            className="bg-green-600 text-white px-3 py-1 rounded mr-2"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            onClick={() => onDelete?.(employee.id)}
-                            className="bg-red-600 text-white px-3 py-1 rounded"
-                        >
-                            Delete
-                        </button>
-
-                    </td>
+                        {role === 'Admin' && (
+                            <td className="border p-3">
+                                <button
+                                    onClick={() => onEdit(employee)}
+                                    className="bg-green-600 text-white px-3 py-1 rounded mr-2"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => onDelete?.(employee.id)}
+                                    className="bg-red-600 text-white px-3 py-1 rounded"
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        )}
                     </tr>
 
                 ))}

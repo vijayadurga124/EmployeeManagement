@@ -1,3 +1,29 @@
+# .gitignore for .NET + Node.js project
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment / secrets
+.env
+backend/EmployeeManagement.API/appsettings.json
+
+# Logs
+*.log
+
+# Misc
+dist/
+coverage/
 # OS / Editor
 .DS_Store
 Thumbs.db

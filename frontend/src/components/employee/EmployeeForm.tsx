@@ -122,7 +122,6 @@ function EmployeeForm({ onSave, employeeToEdit }: EmployeeFormProps) {
 
 
     return (
-
         <form
             onSubmit={handleSubmit}
             className="bg-white shadow rounded p-6 mb-8"

@@ -1,9 +1,11 @@
 using EmployeeManagement.API.Interfaces;
 using EmployeeManagement.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeManagement.API.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class EmployeeController : ControllerBase
@@ -33,6 +35,7 @@ public class EmployeeController : ControllerBase
         return Ok(employee);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddEmployee(Employee employee)
     {
@@ -44,6 +47,7 @@ public class EmployeeController : ControllerBase
             createdEmployee);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
     {
@@ -55,6 +59,7 @@ public class EmployeeController : ControllerBase
         return Ok(updatedEmployee);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEmployee(int id)
     {
