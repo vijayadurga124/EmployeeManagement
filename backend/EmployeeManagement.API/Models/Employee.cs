@@ -32,4 +32,7 @@ public class Employee
 
     public bool IsActive { get; set; } = true;
     public User? User { get; set; }
+    // Navigation Property
+    public ICollection<Attendance> Attendances { get; set; }
+        = new List<Attendance>();
 }

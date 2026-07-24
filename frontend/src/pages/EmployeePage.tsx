@@ -104,15 +104,23 @@ function EmployeePage() {
         <h1 className="text-3xl font-bold mb-6">
             Employee Management System
         </h1>
-        <div className="flex justify-between items-center mb-6">
-            {role === "Admin" && (
+        <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
+            <div className="flex gap-3">
+                {role === "Admin" && (
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded"
+                    >
+                        + Add Employee
+                    </button>
+                )}
                 <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                    onClick={() => navigate("/attendance")}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded"
                 >
-                    + Add Employee
+                    Attendance
                 </button>
-            )}
+            </div>
             <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded"

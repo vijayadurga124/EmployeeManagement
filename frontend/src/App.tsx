@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import EmployeePage from "./pages/EmployeePage";
+import AttendancePage from "./pages/AttendancePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -17,6 +18,14 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <EmployeePage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/attendance"
+                element={
+                    <ProtectedRoute>
+                        <AttendancePage />
                     </ProtectedRoute>
                 }
             />

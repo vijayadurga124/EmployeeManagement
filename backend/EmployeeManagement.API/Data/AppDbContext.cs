@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Employee> Employees { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Attendance> Attendances => Set<Attendance>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
