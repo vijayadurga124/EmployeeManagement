@@ -1,4 +1,5 @@
 import type { Employee } from "../../types/Employee";
+import { useAuth } from "../../context/useAuth";
 
 interface EmployeeTableProps {
     employees: Employee[];
@@ -6,74 +7,63 @@ interface EmployeeTableProps {
     onDelete?: (id: number) => void;
 }
 
-import { useAuth } from "../../context/useAuth";
-
 function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProps) {
     const { role } = useAuth();
 
+    const formatSalary = (salary: number) => {
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        }).format(salary);
+    };
+
     return (
-        <table className="table-auto border-collapse border border-gray-300 w-full">
-
+        <table className="data-table">
             <thead>
-
-                <tr className="bg-blue-600 text-white">
-
-                    <th className="border p-3">Id</th>
-                    <th className="border p-3">First Name</th>
-                    <th className="border p-3">Last Name</th>
-                    <th className="border p-3">Email</th>
-                    <th className="border p-3">Department</th>
-                    {role === 'Admin' && <th className="border p-3">Actions</th>}
-
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Salary</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    {role === "Admin" && <th className="text-right">Actions</th>}
                 </tr>
-
             </thead>
-            {employees.length === 0 && (
-                <tbody>
-                    <tr>
-                        <td
-                            colSpan={6}
-                            className="text-center py-6"
-                        >
-                            No employees found.
-                        </td>
-                    </tr>
-                </tbody>
-            )}
-
             <tbody>
-
-                {employees.map(employee => (
-
+                {employees.map((employee) => (
                     <tr key={employee.id}>
-
-                        <td className="border p-3">{employee.id}</td>
-                        <td className="border p-3">{employee.firstName}</td>
-                        <td className="border p-3">{employee.lastName}</td>
-                        <td className="border p-3">{employee.email}</td>
-                        <td className="border p-3">{employee.department}</td>
-                        {role === 'Admin' && (
-                            <td className="border p-3">
-                                <button
-                                    onClick={() => onEdit(employee)}
-                                    className="bg-green-600 text-white px-3 py-1 rounded mr-2"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => onDelete?.(employee.id)}
-                                    className="bg-red-600 text-white px-3 py-1 rounded"
-                                >
-                                    Delete
-                                </button>
+                        <td className="font-medium text-gray-900">#{employee.id}</td>
+                        <td className="font-medium text-gray-900">{employee.firstName} {employee.lastName}</td>
+                        <td className="break-all text-blue-600">{employee.email}</td>
+                        <td>{employee.department}</td>
+                        <td className="font-medium text-gray-900">{formatSalary(employee.salary)}</td>
+                        <td>
+                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                                {employee.role?.name ?? employee.roleName ?? "Employee"}
+                            </span>
+                        </td>
+                        <td>
+                            <span className={`rounded-full px-3 py-1 text-xs font-medium ${employee.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                                {employee.isActive ? "Active" : "Inactive"}
+                            </span>
+                        </td>
+                        {role === "Admin" && (
+                            <td className="text-right">
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={() => onEdit(employee)} className="inline-flex h-9 items-center rounded-md border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        Edit
+                                    </button>
+                                    <button onClick={() => onDelete?.(employee.id)} className="inline-flex h-9 items-center rounded-md bg-red-600 px-3 text-sm font-medium text-white hover:bg-red-700">
+                                        Delete
+                                    </button>
+                                </div>
                             </td>
                         )}
                     </tr>
-
                 ))}
-
             </tbody>
-
         </table>
     );
 }

@@ -33,7 +33,15 @@ public class AttendanceController : BaseApiController
         return Ok(result);
     }
 
-    [HttpGet("{employeeId}")]
+    [HttpGet("today")]
+    public async Task<IActionResult> GetTodayStatus()
+    {
+        var result = await _attendanceService.GetTodayStatusAsync();
+
+        return Ok(result);
+    }
+
+    [HttpGet("my-history")]
     public async Task<IActionResult> History()
     {
         var result = await _attendanceService.GetAttendanceHistoryAsync();

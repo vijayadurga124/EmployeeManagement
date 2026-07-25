@@ -7,7 +7,8 @@ import {
 interface AuthContextType {
     token: string | null;
     role: string | null;
-    login: (token: string, role: string) => void;
+    user: string | null;
+    login: (token: string, role: string, user?: string) => void;
     logout: () => void;
 }
 
@@ -22,20 +23,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [role, setRole] = useState<string | null>(
         () => localStorage.getItem("role")
     );
+    const [user, setUser] = useState<string | null>(
+        () => localStorage.getItem("user")
+    );
 
-    const login = (token: string, role: string) => {
+    const login = (token: string, role: string, userEmail: string = "User") => {
 
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
+        localStorage.setItem("user", userEmail);
 
         setToken(token);
         setRole(role);
+        setUser(userEmail);
     };
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
+        localStorage.removeItem("user");
         setToken(null);
         setRole(null);
+        setUser(null);
     };
 
     return (
@@ -43,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 token,
                 role,
+                user,
                 login,
                 logout
             }}

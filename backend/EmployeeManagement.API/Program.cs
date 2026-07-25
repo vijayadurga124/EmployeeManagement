@@ -59,6 +59,8 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
+await DbInitializer.InitializeAsync(app.Services);
+
 app.UseHttpsRedirection();
 app.UseCors("ReactPolicy");
 

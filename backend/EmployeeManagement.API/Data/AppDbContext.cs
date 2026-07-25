@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Employee> Employees { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Attendance> Attendances => Set<Attendance>();
+    public DbSet<Role> Roles { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,5 +23,11 @@ public class AppDbContext : DbContext
             .HasOne(e => e.User)
             .WithOne(u => u.Employee)
             .HasForeignKey<User>(u => u.EmployeeId);
+
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.Role)
+            .WithMany()
+            .HasForeignKey(e => e.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

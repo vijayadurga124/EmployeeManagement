@@ -16,12 +16,16 @@ public class EmployeeService : IEmployeeService
 
     public async Task<List<Employee>> GetAllEmployeesAsync()
     {
-        return await _context.Employees.ToListAsync();
+        return await _context.Employees
+            .Include(e => e.Role)
+            .ToListAsync();
     }
 
     public async Task<Employee?> GetEmployeeByIdAsync(int id)
     {
-        return await _context.Employees.FindAsync(id);
+        return await _context.Employees
+            .Include(e => e.Role)
+            .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task<Employee> AddEmployeeAsync(Employee employee)
@@ -48,6 +52,7 @@ public class EmployeeService : IEmployeeService
         existingEmployee.Salary = employee.Salary;
         existingEmployee.DateOfJoining = employee.DateOfJoining;
         existingEmployee.IsActive = employee.IsActive;
+        existingEmployee.RoleId = employee.RoleId;
 
         await _context.SaveChangesAsync();
 

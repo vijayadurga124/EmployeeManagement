@@ -74,6 +74,40 @@ public class AttendanceService : IAttendanceService
         return _mapper.Map<AttendanceDto>(attendance);
     }
 
+    public async Task<TodayAttendanceDto> GetTodayStatusAsync()
+    {
+        var employeeId = _currentUser.EmployeeId;
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        var attendance = await _context.Attendances
+            .FirstOrDefaultAsync(a =>
+                a.EmployeeId == employeeId &&
+                a.Date == today);
+
+        if (attendance == null)
+        {
+            return new TodayAttendanceDto
+            {
+                Date = today,
+                CheckedIn = false,
+                CheckIn = null,
+                CheckedOut = false,
+                CheckOut = null,
+                Status = "Not Checked In"
+            };
+        }
+
+        return new TodayAttendanceDto
+        {
+            Date = attendance.Date,
+            CheckedIn = true,
+            CheckIn = attendance.CheckIn,
+            CheckedOut = attendance.CheckOut != null,
+            CheckOut = attendance.CheckOut,
+            Status = attendance.Status
+        };
+    }
+
     public async Task<IEnumerable<AttendanceDto>> GetAttendanceHistoryAsync()
     {
         var employeeId = _currentUser.EmployeeId;

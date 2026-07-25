@@ -3,46 +3,41 @@ import type { Employee } from "../types/Employee";
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from "../api/employeeApi";
 import EmployeeTable from "../components/employee/EmployeeTable";
 import EmployeeForm from "../components/employee/EmployeeForm";
-import { useNavigate } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
 import { useAuth } from "../context/useAuth";
+import Button from "../components/ui/Button";
+import PageHeader from "../components/ui/PageHeader";
+import SearchBox from "../components/ui/SearchBox";
+import SectionCard from "../components/ui/SectionCard";
+import EmptyState from "../components/ui/EmptyState";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 function EmployeePage() {
-
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const navigate = useNavigate();
-    const { logout, role } = useAuth();
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const { role } = useAuth();
 
     const loadEmployees = async () => {
         try {
             setLoading(true);
+            setError("");
             const data = await getEmployees();
             setEmployees(data);
         } catch (error) {
+            setError("Failed to load employees");
             console.error(error);
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                setLoading(true);
-                const data = await getEmployees();
-                    setEmployees(data);
-            } catch (error) {
-                console.error(error);
-            }
-            finally {
-                setLoading(false);
-            }
-        };
-        fetchEmployees();
+        loadEmployees();
     }, []);
 
     const handleEdit = (employee: Employee) => {
@@ -56,33 +51,43 @@ function EmployeePage() {
     };
 
     const saveEmployee = async (employee: Employee) => {
-        if (employee.id === 0) {
-            await addEmployee(employee);
+        try {
+            setError("");
+            if (employee.id === 0) {
+                await addEmployee(employee);
+                setSuccess("Employee added successfully!");
+            } else {
+                await updateEmployee(employee.id, employee);
+                setSuccess("Employee updated successfully!");
+                setSelectedEmployee(null);
+            }
+            setIsModalOpen(false);
+            await loadEmployees();
+            setTimeout(() => setSuccess(""), 3000);
+        } catch (error) {
+            setError("Failed to save employee");
+            console.error(error);
         }
-        else {
-            await updateEmployee(employee.id, employee);
-            setSelectedEmployee(null);
-        }
-        setIsModalOpen(false);
-        await loadEmployees();
     };
 
     const removeEmployee = async (id: number) => {
-
-        const confirmed = window.confirm(
-            "Delete this employee?"
-        );
+        const confirmed = window.confirm("Are you sure you want to delete this employee?");
 
         if (!confirmed) return;
 
-        await deleteEmployee(id);
-
-        await loadEmployees();
-
+        try {
+            setError("");
+            await deleteEmployee(id);
+            setSuccess("Employee deleted successfully!");
+            await loadEmployees();
+            setTimeout(() => setSuccess(""), 3000);
+        } catch (error) {
+            setError("Failed to delete employee");
+            console.error(error);
+        }
     };
-    
-    const filteredEmployees = employees.filter(employee => {
 
+    const filteredEmployees = employees.filter((employee) => {
         const search = searchTerm.toLowerCase();
 
         return (
@@ -91,81 +96,91 @@ function EmployeePage() {
             employee.email.toLowerCase().includes(search) ||
             employee.department.toLowerCase().includes(search)
         );
-
     });
 
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
-
     return (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold mb-6">
-            Employee Management System
-        </h1>
-        <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
-            <div className="flex gap-3">
-                {role === "Admin" && (
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                        + Add Employee
+        <MainLayout title="Employees">
+            {error && (
+                <div className="alert alert-error mb-6">
+                    <span>{error}</span>
+                    <button onClick={() => setError("")} className="text-lg font-semibold">
+                        ×
                     </button>
-                )}
-                <button
-                    onClick={() => navigate("/attendance")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded"
-                >
-                    Attendance
-                </button>
-            </div>
-            <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded"
-            >
-                Logout
-            </button>
-        </div>
-
-        {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded shadow-lg w-full max-w-2xl p-6 relative">
-                    <button
-                        onClick={handleCloseModal}
-                        className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
-                    >
-                        &times;
-                    </button>
-                    <EmployeeForm
-                        key={selectedEmployee?.id ?? "new"}
-                        onSave={saveEmployee}
-                        employeeToEdit={selectedEmployee}
-                    />
                 </div>
-            </div>
-        )}
-        <div className="mb-4">
-            <input
-                type="text"
-                placeholder="Search by name, email or department..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full border rounded p-2"
-            />
-        </div>
-        {loading && (
-            <p className="text-lg">Loading employees...</p>
-        )}
-        <EmployeeTable
-            employees={filteredEmployees}
-            onEdit={handleEdit}
-            onDelete={removeEmployee}
-        />
-    </div>
-);
+            )}
 
+            {success && (
+                <div className="alert alert-success mb-6">
+                    <span>{success}</span>
+                    <button onClick={() => setSuccess("")} className="text-lg font-semibold">
+                        ×
+                    </button>
+                </div>
+            )}
+
+            <div className="space-y-6">
+                <PageHeader
+                    title="Employee directory"
+                    description="Manage staff records and team details."
+                    actions={role === "Admin" ? <Button onClick={() => setIsModalOpen(true)}><span className="mr-2">+</span> Add Employee</Button> : undefined}
+                    search={<SearchBox value={searchTerm} onChange={setSearchTerm} placeholder="Search by name, email, department" />}
+                />
+
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+                            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    {selectedEmployee ? "Edit employee" : "Add new employee"}
+                                </h3>
+                                <button onClick={handleCloseModal} className="text-2xl font-semibold text-gray-500">
+                                    ×
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <EmployeeForm key={selectedEmployee?.id ?? "new"} onSave={saveEmployee} employeeToEdit={selectedEmployee} />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {loading ? (
+                    <LoadingSpinner label="Loading employees..." />
+                ) : (
+                    <>
+                        <div className="grid gap-6 md:grid-cols-3">
+                            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                                <p className="text-sm font-medium text-gray-500">Total employees</p>
+                                <p className="mt-2 text-3xl font-bold text-gray-900">{employees.length}</p>
+                            </div>
+                            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                                <p className="text-sm font-medium text-gray-500">Active employees</p>
+                                <p className="mt-2 text-3xl font-bold text-gray-900">{employees.filter((e) => e.isActive).length}</p>
+                            </div>
+                            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                                <p className="text-sm font-medium text-gray-500">Search results</p>
+                                <p className="mt-2 text-3xl font-bold text-gray-900">{filteredEmployees.length}</p>
+                            </div>
+                        </div>
+
+                        <SectionCard title="Employee list">
+                            {filteredEmployees.length === 0 ? (
+                                <EmptyState
+                                    title="No employees found"
+                                    description="Try adjusting your search criteria."
+                                    icon={<svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+                                />
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <EmployeeTable employees={filteredEmployees} onEdit={handleEdit} onDelete={removeEmployee} />
+                                </div>
+                            )}
+                        </SectionCard>
+                    </>
+                )}
+            </div>
+        </MainLayout>
+    );
 }
 
 export default EmployeePage;

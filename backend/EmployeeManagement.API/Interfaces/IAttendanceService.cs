@@ -8,5 +8,7 @@ public interface IAttendanceService
 
     Task<AttendanceDto> CheckOutAsync();
 
+    Task<TodayAttendanceDto> GetTodayStatusAsync();
+
     Task<IEnumerable<AttendanceDto>> GetAttendanceHistoryAsync();
 }
